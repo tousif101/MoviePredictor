@@ -107,6 +107,21 @@ dataMatrix = new_data.as_matrix()
 targetVariable = targetDataSimpleScore.as_matrix()
 independentVariables = independentVarsData.as_matrix()
 
+
+def log(x):
+	for i in range(x.shape[0]):
+		for j in range(x.shape[1]):
+			if x[i][j] != 0:
+				x[i][j] = np.log(x[i][j])
+			else:
+				x[i][j] = 0
+	return x
+
+def norm(x):
+	x = log(x)
+	x = (x- (x.mean())) / x.std()
+	return x
+
 """
 Split the data, training and validating
 split 50 50
@@ -181,7 +196,10 @@ Multi-Layer Perceptron (Neural Network Model)
 Accuracy: 77%
 Preprocessing: 80%
 """
-mlp = MLPClassifier()
+
+X_train = norm(X_train)
+X_test = norm(X_test)
+mlp = MLPClassifier(solver='adam',activation='relu',shuffle=True,learning_rate='constant',random_state=156)
 mlp.fit(X_train,y_train)
 mlpAccuracy = mlp.score(X_test,y_test)
 print(mlpAccuracy)
@@ -193,7 +211,7 @@ False Positive Rate vs True Positive Rate
 """
 
 
-accuracy = [21,78,74,72,69,44,25,77]
+accuracy = [21,78,74,72,69,44,25,mlpAccuracy*100]
 models = ['linear reg', 'logistic reg', 'svm', 'DTree(Entropy)','DTree(Gini)', 'NB','MNB','MLP']
 plt.figure(1)
 plt.bar(range(len(accuracy)), accuracy, align='center')
